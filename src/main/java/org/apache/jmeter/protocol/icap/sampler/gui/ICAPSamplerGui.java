@@ -4,20 +4,17 @@ package org.apache.jmeter.protocol.icap.sampler.gui;
 import org.apache.jmeter.gui.util.HorizontalPanel;
 import org.apache.jmeter.gui.util.VerticalPanel;
 import org.apache.jmeter.protocol.icap.sampler.ICAPSampler;
+import org.apache.jmeter.protocol.icap.sampler.util.ICAPConstatnts;
 import org.apache.jmeter.samplers.gui.AbstractSamplerGui;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.gui.JLabeledChoice;
 import org.apache.jorphan.gui.JLabeledTextField;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 
 import javax.swing.*;
 import java.awt.*;
 
 
 public class ICAPSamplerGui extends AbstractSamplerGui {
-    private static Logger logger = LogManager.getLogger(ICAPSampler.class);
-
     // ICAP host
     private JLabeledTextField domain;
 
@@ -53,7 +50,8 @@ public class ICAPSamplerGui extends AbstractSamplerGui {
             ICAPSampler sampler = (ICAPSampler) el;
             sampler.setHost(domain.getText());
             sampler.setPort(port.getText());
-//            sampler.setService(service.getText());
+            sampler.setService(service.getText());
+            sampler.setConnectTimeout(connectTimeout.getText());
         }
     }
 
@@ -65,6 +63,8 @@ public class ICAPSamplerGui extends AbstractSamplerGui {
             ICAPSampler sampler = (ICAPSampler) el;
             domain.setText(sampler.getHost());
             port.setText(Integer.toString(sampler.getPort()));
+            service.setText(sampler.getService());
+            connectTimeout.setText(Integer.toString(sampler.getConnectTimeout()));
         }
     }
 
@@ -82,6 +82,7 @@ public class ICAPSamplerGui extends AbstractSamplerGui {
 
         JPanel mainPanel = new VerticalPanel();
         mainPanel.add(getConnectPanel());
+        mainPanel.add(getPathPanel());
 
         JPanel container = new JPanel(new BorderLayout());
         container.add(mainPanel, BorderLayout.NORTH);
@@ -126,8 +127,20 @@ public class ICAPSamplerGui extends AbstractSamplerGui {
         return timeOut;
     }
 
-    private Component getRequestPanel() {
+    private Component getPathPanel() {
+        method = new JLabeledChoice("Method: ", ICAPConstatnts.METHODS, true, false);
+        service = new JLabeledTextField("Service: ");
 
+        JPanel pathPanel =  new HorizontalPanel();
+        pathPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEtchedBorder(),
+                "ICAP Request"
+        ));
+
+        pathPanel.add(method);
+        pathPanel.add(service);
+
+        return pathPanel;
     }
 
     private void initFields() {
@@ -135,6 +148,8 @@ public class ICAPSamplerGui extends AbstractSamplerGui {
         port.setText("");
         connectTimeout.setText("");
         responseTimeout.setText("");
+        method.setText("");
+        service.setText("");
     }
 
 }
