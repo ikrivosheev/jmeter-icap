@@ -6,7 +6,7 @@
 
   <groupId>org.apache.jmeter.protocol.icap.sampler</groupId>
   <artifactId>jmeter-icap</artifactId>
-  <version>0.0.2</version>
+  <version>0.0.4</version>
 
   <name>icap</name>
 
@@ -63,18 +63,6 @@
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.22.1</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>3.0.2</version>
-          <configuration>
-            <archive>
-              <manifest>
-                <addClasspath>true</addClasspath>
-                <mainClass>org.apache.jmeter.protocol.icap.sampler.Main</mainClass>
-              </manifest>
-            </archive>
-          </configuration>
         </plugin>
         <plugin>
           <artifactId>maven-project-info-reports-plugin</artifactId>

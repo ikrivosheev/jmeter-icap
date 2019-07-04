@@ -36,10 +36,13 @@ public class ICAPClient {
     }
 
     public ICAPResponse request(ICAPMethod method, String service) throws IOException, URISyntaxException {
+        URI url = new URI("icap", null, address.getHostString(), address.getPort(), service, null,null);
+        return request(new ICAPRequest(method, url));
+    }
+
+    public ICAPResponse request(ICAPRequest req) throws IOException {
         socket.connect(address, connTimeout);
         socket.setSoTimeout(readTimeout);
-        URI url = new URI("icap", null, address.getHostString(), address.getPort(), service, null,null);
-        ICAPRequest req = new ICAPRequest(method, url);
         ICAPProtocol.write(socket, req);
         ICAPResponse response = ICAPProtocol.read(socket, req);
         socket.close();
@@ -56,5 +59,11 @@ public class ICAPClient {
 
     public ICAPResponse respmod(String service) throws IOException, URISyntaxException {
         return request(ICAPMethod.RESPMOD, service);
+    }
+
+    public void close() throws IOException {
+        if (socket.isConnected()) {
+            socket.close();
+        }
     }
 }

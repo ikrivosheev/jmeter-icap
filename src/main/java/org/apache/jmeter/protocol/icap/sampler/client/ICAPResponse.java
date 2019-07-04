@@ -13,7 +13,6 @@ public class ICAPResponse extends HeadersMixin {
 
     ICAPResponse(ICAPMethod method, URI url) {
         super();
-
         this.url = url;
         this.method = method;
     }
@@ -50,4 +49,12 @@ public class ICAPResponse extends HeadersMixin {
         return method;
     }
 
+    public String getStartLine() {
+        return String.join(" ", getVersion(), getStatus(), getReason());
+    }
+
+    public String toString() {
+        String result = super.toString();
+        return getStartLine() + "\r\n" + result;
+    }
 }

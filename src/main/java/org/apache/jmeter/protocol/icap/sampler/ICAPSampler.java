@@ -1,5 +1,9 @@
 package org.apache.jmeter.protocol.icap.sampler;
 
+import org.apache.jmeter.protocol.icap.sampler.client.ICAPClient;
+import org.apache.jmeter.protocol.icap.sampler.client.ICAPMethod;
+import org.apache.jmeter.protocol.icap.sampler.client.ICAPRequest;
+import org.apache.jmeter.protocol.icap.sampler.client.ICAPResponse;
 import org.apache.jmeter.protocol.icap.sampler.util.ICAPConstatnts;
 import org.apache.log4j.Logger;
 import org.apache.log4j.LogManager;
@@ -8,12 +12,7 @@ import org.apache.jmeter.samplers.Interruptible;
 import org.apache.jmeter.config.ConfigTestElement;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.net.URISyntaxException;
 
 
 public class ICAPSampler extends AbstractSampler implements Interruptible {
@@ -24,8 +23,6 @@ public class ICAPSampler extends AbstractSampler implements Interruptible {
     private static final String PORT = "port";
     private static final String SERVICE = "service";
     private static final String CONNECT_TIMEOUT = "connect_timeout";
-
-    private Socket icapSocket;
 
     public ICAPSampler() {
         super();
@@ -72,41 +69,36 @@ public class ICAPSampler extends AbstractSampler implements Interruptible {
         SampleResult result = new SampleResult();
         result.setSampleLabel(getName());
         result.sampleStart();
-        result.setSuccessful(true);
 
-        OutputStream out;
-        String request = "OPTIONS icap://" + getHost() + ":" + getPort() + "/" + getService().trim() + " ICAP/1.0\r\n\r\n";
+        ICAPClient client = new ICAPClient(getHost(), getPort());
+        ICAPRequest request;
+        ICAPResponse response;
 
         try {
-            icapSocket = new Socket(getHost(), getPort());
-            icapSocket.connect(new InetSocketAddress(getHost(), getPort()), getConnectTimeout());
-            out = icapSocket.getOutputStream();
-            out.write(request.getBytes());
-            icapSocket.close();
+            request = new ICAPRequest(ICAPMethod.OPTIONS, getHost(), getPort(), getService());
+            response = client.request(request);
         }
-        catch (UnknownHostException exc) {
+        catch (URISyntaxException exc) {
             result.setSuccessful(false);
-            logger.error("Can not connect to host: " + exc.getMessage());
+            logger.error("Bad URI to connect: " + exc.getMessage());
+            return result;
         }
         catch (IOException exc) {
             result.setSuccessful(false);
             logger.error("I/O Error: " + exc.getMessage());
+            return result;
         }
 
+        result.setResponseCode(response.getStatus());
+        result.setResponseMessage(response.getReason());
+        result.setRequestHeaders(request.toString());
+        result.setResponseHeaders(response.toString());
         result.sampleEnd();
+        result.setSuccessful(true);
         return result;
     }
 
     public boolean interrupt() {
-        try {
-            if (icapSocket.isConnected()) {
-                icapSocket.close();
-            }
-            icapSocket = null;
-        }
-        catch (IOException exc) {
-            logger.error("I/O Error: " + exc.getMessage());
-        }
         return true;
     }
 }

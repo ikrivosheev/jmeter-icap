@@ -12,7 +12,8 @@ public class HeadersMixin {
     }
 
     public void addHeader(String name, Object value) {
-
+        Map.Entry<String, String> entry = new AbstractMap.SimpleEntry<>(name, value.toString());
+        headers.add(entry);
     }
 
     public Map.Entry<String, String> getHeader(String name) {
@@ -30,5 +31,13 @@ public class HeadersMixin {
 
     public boolean containsHeader(String name) {
         return getHeader(name) != null;
+    }
+
+    public String toString() {
+        ArrayList<String> headers_lines = new ArrayList<>();
+        for (Map.Entry<String, String> entry: headers) {
+            headers_lines.add(String.format("%s: %s", entry.getKey(), entry.getValue()));
+        }
+        return String.join("\r\n", headers_lines);
     }
 }

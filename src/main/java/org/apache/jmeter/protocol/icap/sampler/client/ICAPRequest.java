@@ -1,6 +1,7 @@
 package org.apache.jmeter.protocol.icap.sampler.client;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
 
 public class ICAPRequest extends HeadersMixin {
@@ -41,5 +42,14 @@ public class ICAPRequest extends HeadersMixin {
         this.url = url;
         this.method = method;
         this.version = ICAPVersion.ICAP_1_0;
+    }
+
+    public ICAPRequest(ICAPMethod method, String host, int port, String service) throws URISyntaxException {
+        this(method, new URI("icap", null, host, port, service, null,null));
+    }
+
+    public String toString() {
+        String result = super.toString();
+        return getStartLine() + "\r\n" + result;
     }
 }
