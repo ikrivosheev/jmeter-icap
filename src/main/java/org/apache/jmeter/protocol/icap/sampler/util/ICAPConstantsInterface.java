@@ -1,13 +1,11 @@
 package org.apache.jmeter.protocol.icap.sampler.util;
 
 
+import org.apache.jmeter.protocol.icap.sampler.client.ICAPMethod;
+
 public interface ICAPConstantsInterface {
     int DEFAULT_PORT = 1344;
 
-    String OPTIONS = "OPTIONS";
-    String REQMOD = "REQMOD";
-    String RESPMOD = "RESPMOD";
-
-    String[] METHODS = {OPTIONS, REQMOD, RESPMOD};
+    String[] METHODS = {ICAPMethod.OPTIONS.toString(), ICAPMethod.REQMOD.toString(), ICAPMethod.RESPMOD.toString()};
 
 }

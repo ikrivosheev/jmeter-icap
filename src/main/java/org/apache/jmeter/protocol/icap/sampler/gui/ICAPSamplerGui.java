@@ -114,7 +114,7 @@ public class ICAPSamplerGui extends AbstractSamplerGui {
 
     private Component getTimeoutPanel() {
         connectTimeout = new JLabeledTextField("Connect: ", 7);
-        responseTimeout = new JLabeledTextField("Response: ", 7);
+        responseTimeout = new JLabeledTextField("ICAPResponse: ", 7);
 
         JPanel timeOut = new HorizontalPanel();
         timeOut.setBorder(BorderFactory.createTitledBorder(
@@ -134,7 +134,7 @@ public class ICAPSamplerGui extends AbstractSamplerGui {
         JPanel pathPanel =  new HorizontalPanel();
         pathPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createEtchedBorder(),
-                "ICAP Request"
+                "ICAP ICAPRequest"
         ));
 
         pathPanel.add(method);
