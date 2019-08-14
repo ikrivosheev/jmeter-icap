@@ -8,6 +8,7 @@ public class ICAPRequest extends HeadersMixin {
     private URI url;
     private ICAPMethod method;
     private String version;
+    private IICAPBody body;
 
     public URI getUrl() {
         return url;
@@ -35,6 +36,14 @@ public class ICAPRequest extends HeadersMixin {
 
     public String getStartLine() {
         return String.join(" ", getMethod().toString(), getUrl().toString(), getVersion());
+    }
+
+    public IICAPBody getBody() {
+        return body;
+    }
+
+    public void setBody(IICAPBody body) {
+        this.body = body;
     }
 
     public ICAPRequest(ICAPMethod method, URI url) {
