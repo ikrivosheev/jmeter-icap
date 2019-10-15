@@ -1,28 +1,16 @@
-package org.apache.jmeter.protocol.icap.sampler.client;
+package org.apache.jmeter.protocol.icap.sampler.client.message;
 
 import java.net.URI;
 
-
-public class ICAPResponse extends HeadersMixin {
-    private String version;
+public class ICAPResponse extends AbstractICAPMessage {
     private String status;
     private String reason;
 
     private URI url;
-    private ICAPMethod method;
 
     ICAPResponse(ICAPMethod method, URI url) {
-        super();
+        super(method, ICAPVersion.ICAP_1_0);
         this.url = url;
-        this.method = method;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
     }
 
     public String getStatus() {
@@ -45,12 +33,8 @@ public class ICAPResponse extends HeadersMixin {
         return url;
     }
 
-    public ICAPMethod getMethod() {
-        return method;
-    }
-
     public String getStartLine() {
-        return String.join(" ", getVersion(), getStatus(), getReason());
+        return String.join(" ", (CharSequence) getVersion(), getStatus(), getReason());
     }
 
     public String toString() {

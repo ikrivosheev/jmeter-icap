@@ -48,10 +48,12 @@ public class ICAPSamplerGui extends AbstractSamplerGui {
 
         if (el instanceof ICAPSampler) {
             ICAPSampler sampler = (ICAPSampler) el;
+            sampler.setMethod(method.getText());
             sampler.setHost(domain.getText());
-            sampler.setPort(port.getText());
+            sampler.setPort(Integer.parseInt(port.getText()));
             sampler.setService(service.getText());
-            sampler.setConnectTimeout(connectTimeout.getText());
+            sampler.setConnectTimeout(Integer.parseInt(connectTimeout.getText()));
+            sampler.setReadTimeout(Integer.parseInt(responseTimeout.getText()));
         }
     }
 
@@ -65,6 +67,7 @@ public class ICAPSamplerGui extends AbstractSamplerGui {
             port.setText(Integer.toString(sampler.getPort()));
             service.setText(sampler.getService());
             connectTimeout.setText(Integer.toString(sampler.getConnectTimeout()));
+            responseTimeout.setText(Integer.toString(sampler.getReadTimeout()));
         }
     }
 
@@ -114,7 +117,7 @@ public class ICAPSamplerGui extends AbstractSamplerGui {
 
     private Component getTimeoutPanel() {
         connectTimeout = new JLabeledTextField("Connect: ", 7);
-        responseTimeout = new JLabeledTextField("ICAPResponse: ", 7);
+        responseTimeout = new JLabeledTextField("Response: ", 7);
 
         JPanel timeOut = new HorizontalPanel();
         timeOut.setBorder(BorderFactory.createTitledBorder(

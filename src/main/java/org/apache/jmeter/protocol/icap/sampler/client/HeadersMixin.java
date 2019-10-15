@@ -4,8 +4,9 @@ import java.util.*;
 
 
 public class HeadersMixin {
-    private List<Map.Entry<String, String>> headers;
+    public static String NEWLINE = "\r\n";
 
+    private List<Map.Entry<String, String>> headers;
 
     public HeadersMixin() {
         headers = new LinkedList<>();
@@ -25,7 +26,7 @@ public class HeadersMixin {
         return null;
     }
 
-    Set<Map.Entry<String, String>> getHeaders() {
+    public Set<Map.Entry<String, String>> getHeaders() {
         return new LinkedHashSet<>(headers);
     }
 
@@ -38,6 +39,6 @@ public class HeadersMixin {
         for (Map.Entry<String, String> entry: headers) {
             headers_lines.add(String.format("%s: %s", entry.getKey(), entry.getValue()));
         }
-        return String.join("\r\n", headers_lines);
+        return String.join(NEWLINE, headers_lines);
     }
 }

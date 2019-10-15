@@ -1,7 +1,7 @@
 package org.apache.jmeter.protocol.icap.sampler.util;
 
 
-import org.apache.jmeter.protocol.icap.sampler.client.ICAPMethod;
+import org.apache.jmeter.protocol.icap.sampler.client.message.ICAPMethod;
 
 public interface ICAPConstantsInterface {
     int DEFAULT_PORT = 1344;

@@ -1,4 +1,4 @@
-package org.apache.jmeter.protocol.icap.sampler.client;
+package org.apache.jmeter.protocol.icap.sampler.client.message;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -30,11 +30,11 @@ public final class ICAPMethod {
 
     private String name;
 
-    public ICAPMethod(String name) {
+    private ICAPMethod(String name) {
         this.name = name;
     }
 
-    static ICAPMethod valueOf(String name) {
+    public static ICAPMethod valueOf(String name) {
         if (name == null) {
             throw new NullPointerException("name");
         }
