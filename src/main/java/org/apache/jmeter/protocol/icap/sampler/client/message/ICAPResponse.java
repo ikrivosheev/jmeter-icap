@@ -6,11 +6,11 @@ public class ICAPResponse extends AbstractICAPMessage {
     private String status;
     private String reason;
 
-    private URI url;
+    private URI uri;
 
-    ICAPResponse(ICAPMethod method, URI url) {
+    public ICAPResponse(ICAPMethod method, URI uri) {
         super(method, ICAPVersion.ICAP_1_0);
-        this.url = url;
+        this.uri = uri;
     }
 
     public String getStatus() {
@@ -29,8 +29,8 @@ public class ICAPResponse extends AbstractICAPMessage {
         this.reason = reason;
     }
 
-    public URI getUrl() {
-        return url;
+    public URI getUri() {
+        return uri;
     }
 
     public String getStartLine() {

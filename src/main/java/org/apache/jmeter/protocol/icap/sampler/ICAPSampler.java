@@ -92,10 +92,8 @@ public class ICAPSampler extends AbstractSampler implements Interruptible {
         ICAPResponse response;
 
         try {
-            ICAPClient client = new ICAPClient();
+            ICAPClient client = new ICAPClient(getConnectTimeout(), getReadTimeout());
             request = new ICAPRequest(ICAPMethod.valueOf(getMethod()), getHost(), getPort(), getService());
-            request.setConnTimeout(getConnectTimeout());
-            request.setReadTimeout(getReadTimeout());
             response = client.request(request);
         }
         catch (URISyntaxException exc) {
@@ -106,6 +104,11 @@ public class ICAPSampler extends AbstractSampler implements Interruptible {
         catch (IOException exc) {
             result.setSuccessful(false);
             logger.error("I/O Error: " + exc.getMessage());
+            return result;
+        }
+        catch (Exception exc) {
+            result.setSuccessful(false);
+            logger.error("Error: " + exc.getMessage());
             return result;
         }
 

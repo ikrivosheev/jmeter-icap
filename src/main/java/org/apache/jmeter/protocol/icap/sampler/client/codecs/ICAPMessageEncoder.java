@@ -1,10 +1,11 @@
-package org.apache.jmeter.protocol.icap.sampler.client.encoder;
+package org.apache.jmeter.protocol.icap.sampler.client.codecs;
 
 import org.apache.jmeter.protocol.icap.sampler.client.http.HTTPRequest;
 import org.apache.jmeter.protocol.icap.sampler.client.http.HTTPResponse;
 import org.apache.jmeter.protocol.icap.sampler.client.message.AbstractICAPMessage;
 import org.apache.jmeter.protocol.icap.sampler.client.message.Encapsulated;
 import org.apache.jmeter.protocol.icap.sampler.client.message.ICAPMessageElementEnum;
+import org.apache.jmeter.protocol.icap.sampler.client.message.ICAPRequest;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -12,14 +13,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 
-public abstract class ICAPMessageEncoder {
+public class ICAPMessageEncoder {
 
     private static Logger logger = LogManager.getLogger(ICAPMessageEncoder.class);
 
-    public ByteArrayOutputStream encode(AbstractICAPMessage message) throws Exception {
+    public ByteArrayOutputStream encode(ICAPRequest message) throws Exception {
         logger.debug("Encoding [" + message.getClass().getName() + "]");
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         encodeInitialLine(buffer, message);
@@ -28,37 +30,43 @@ public abstract class ICAPMessageEncoder {
         ByteArrayOutputStream httpResponseBuffer = encodeHttpResponseHeader(message.getHttpResponse());
         int index = 0;
         Encapsulated encapsulated = new Encapsulated();
-        if(httpRequestBuffer.readableBytes() > 0) {
+        if(httpRequestBuffer.size() > 0) {
             encapsulated.addEntry(ICAPMessageElementEnum.REQHDR, index);
             httpRequestBuffer.write(ICAPCodecUtil.CRLF);
-            index += httpRequestBuffer.readableBytes();
+            index += httpRequestBuffer.size();
         }
-        if(httpResponseBuffer.readableBytes() > 0) {
+        if(httpResponseBuffer.size() > 0) {
             encapsulated.addEntry(ICAPMessageElementEnum.RESHDR, index);
             httpResponseBuffer.write(ICAPCodecUtil.CRLF);
-            index += httpResponseBuffer.readableBytes();
+            index += httpResponseBuffer.size();
         }
-        if(message.getBodyType() != null) {
-            encapsulated.addEntry(message.getBodyType(), index);
-        } else {
-            encapsulated.addEntry(ICAPMessageElementEnum.NULLBODY, index);
-        }
+
+        encapsulated.addEntry(ICAPMessageElementEnum.NULLBODY, index);
         encodeEncapsulated(buffer, encapsulated);
         buffer.write(httpRequestBuffer.toByteArray());
         buffer.write(httpResponseBuffer.toByteArray());
         return buffer;
     }
 
-    protected abstract int encodeInitialLine(ByteArrayOutputStream builder, AbstractICAPMessage message) throws Exception;
+    private int encodeInitialLine(ByteArrayOutputStream buffer, ICAPRequest request) throws Exception {
+        int index = buffer.size();
+        buffer.write(request.getMethod().toString().getBytes(ICAPCodecUtil.ASCII_CHARSET));
+        buffer.write(ICAPCodecUtil.SPACE);
+        buffer.write(request.getUri().toString().getBytes(ICAPCodecUtil.ASCII_CHARSET));
+        buffer.write(ICAPCodecUtil.SPACE);
+        buffer.write(request.getVersion().toString().getBytes(ICAPCodecUtil.ASCII_CHARSET));
+        buffer.write(ICAPCodecUtil.CRLF);
+        return buffer.size() - index;
+    };
 
-    private ByteArrayOutputStream encodeHttpRequestHeader(HTTPRequest httpRequest) throws IOException {
+    private ByteArrayOutputStream encodeHttpRequestHeader(HTTPRequest httpRequest) throws Exception {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         if(httpRequest != null) {
             buffer.write(httpRequest.getMethod().toString().getBytes(ICAPCodecUtil.ASCII_CHARSET));
             buffer.write(ICAPCodecUtil.SPACE);
-            buffer.write(httpRequest.getUri().getBytes(ICAPCodecUtil.ASCII_CHARSET));
+            buffer.write(httpRequest.getUri().toString().getBytes(ICAPCodecUtil.ASCII_CHARSET));
             buffer.write(ICAPCodecUtil.SPACE);
-            buffer.write(httpRequest.getProtocolVersion().toString().getBytes(ICAPCodecUtil.ASCII_CHARSET));
+            buffer.write(httpRequest.getVersion().toString().getBytes(ICAPCodecUtil.ASCII_CHARSET));
             buffer.write(ICAPCodecUtil.CRLF);
             for (Map.Entry<String, String> h: httpRequest.getHeaders()) {
                 encodeHeader(buffer, h.getKey(), h.getValue());
@@ -70,7 +78,7 @@ public abstract class ICAPMessageEncoder {
     private ByteArrayOutputStream encodeHttpResponseHeader(HTTPResponse httpResponse) throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         if(httpResponse != null) {
-            buffer.write(httpResponse.getProtocolVersion().toString().getBytes(ICAPCodecUtil.ASCII_CHARSET));
+            buffer.write(httpResponse.getVersion().toString().getBytes(ICAPCodecUtil.ASCII_CHARSET));
             buffer.write(ICAPCodecUtil.SPACE);
             buffer.write(httpResponse.getStatus().toString().getBytes(ICAPCodecUtil.ASCII_CHARSET));
             buffer.write(ICAPCodecUtil.CRLF);
@@ -101,6 +109,7 @@ public abstract class ICAPMessageEncoder {
 
     private int encodeEncapsulated(ByteArrayOutputStream buffer, Encapsulated encapsulated) throws IOException {
         int size = buffer.size();
+        List<Encapsulated.Entry> entries = encapsulated.getEntries();
         Collections.sort(entries);
         buffer.write("Encapsulated: ".getBytes(ICAPCodecUtil.ASCII_CHARSET));
         Iterator<Encapsulated.Entry> entryIterator = entries.iterator();

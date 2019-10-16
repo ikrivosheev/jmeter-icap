@@ -1,6 +1,6 @@
 package org.apache.jmeter.protocol.icap.sampler.client.message;
 
-import org.apache.jmeter.protocol.icap.sampler.client.encoder.ICAPCodecUtil;
+import org.apache.jmeter.protocol.icap.sampler.client.codecs.ICAPCodecUtil;
 
 public enum ICAPMessageElementEnum {
     REQHDR(ICAPCodecUtil.ENCAPSULATION_ELEMENT_REQHDR),

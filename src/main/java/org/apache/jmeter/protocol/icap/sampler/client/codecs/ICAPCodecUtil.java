@@ -1,4 +1,4 @@
-package org.apache.jmeter.protocol.icap.sampler.client.encoder;
+package org.apache.jmeter.protocol.icap.sampler.client.codecs;
 
 
 import java.nio.charset.Charset;

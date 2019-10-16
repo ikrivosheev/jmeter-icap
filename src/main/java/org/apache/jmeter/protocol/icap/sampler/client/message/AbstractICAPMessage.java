@@ -6,13 +6,23 @@ import org.apache.jmeter.protocol.icap.sampler.client.http.HTTPResponse;
 
 
 public abstract class AbstractICAPMessage extends HeadersMixin {
+    private ICAPMethod method;
     private ICAPVersion version;
 
     private HTTPRequest httpRequest;
     private HTTPResponse httpResponse;
 
     public AbstractICAPMessage(ICAPMethod method, ICAPVersion version) {
+        this.method = method;
         this.version = version;
+    }
+
+    public ICAPMethod getMethod() {
+        return method;
+    }
+
+    public void setMethod(ICAPMethod method) {
+        this.method = method;
     }
 
     public ICAPVersion getVersion() {
