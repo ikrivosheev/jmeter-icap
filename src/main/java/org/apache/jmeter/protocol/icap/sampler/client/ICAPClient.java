@@ -58,12 +58,12 @@ public class ICAPClient {
     public ICAPResponse request(ICAPRequest request) throws Exception {
         Socket socket = new Socket();
         ICAPMessageEncoder encoder = new ICAPMessageEncoder();
-        ByteArrayOutputStream buffer = encoder.encode(request);
+
         socket.connect(request.getSocketAddress(), connTimeout);
         socket.setSoTimeout(readTimeout);
 
         OutputStream out = socket.getOutputStream();
-        buffer.writeTo(out);
+        encoder.encode(out, request);
 
         ICAPResponse response = new ICAPResponse(request.getMethod(), request.getUri());
         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));

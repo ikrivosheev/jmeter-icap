@@ -10,6 +10,9 @@ import java.net.URISyntaxException;
 public class ICAPRequest extends AbstractICAPMessage {
     private URI uri;
 
+    private ICAPRequestBody body;
+    private ICAPMessageElementEnum bodyType;
+
     public ICAPRequest(ICAPMethod method, URI uri) {
         super(method, ICAPVersion.ICAP_1_0);
         this.uri = uri;
@@ -36,4 +39,26 @@ public class ICAPRequest extends AbstractICAPMessage {
         return new InetSocketAddress(this.uri.getHost(), port);
     }
 
+    public void setHTTPRequestBody(ICAPRequestBody body) {
+        this.body = body;
+        this.bodyType = ICAPMessageElementEnum.REQBODY;
+    }
+
+    public void setHTTPResponseBody(ICAPRequestBody body) {
+        this.body = body;
+        this.bodyType = ICAPMessageElementEnum.RESBODY;
+    }
+
+    public void setICAPOPtionsBody(ICAPRequestBody body) {
+        this.body = body;
+        this.bodyType = ICAPMessageElementEnum.OPTBODY;
+    }
+
+    public ICAPMessageElementEnum getBodyType() {
+        return this.bodyType;
+    }
+
+    public ICAPRequestBody getBody() {
+        return this.body;
+    }
 }

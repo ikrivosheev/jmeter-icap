@@ -1,9 +1,12 @@
 package org.apache.jmeter.protocol.icap.sampler.client.message;
 
+import com.sun.istack.NotNull;
+import org.apache.jmeter.protocol.icap.sampler.client.codecs.ICAPDecodingError;
+
 import java.util.*;
 
 
-public final class Encapsulated {
+public final class Encapsulated implements Iterable<Encapsulated.Entry> {
 
     private List<Entry> entries;
 
@@ -45,40 +48,24 @@ public final class Encapsulated {
         return body;
     }
 
-    public ICAPMessageElementEnum getNextEntry() {
-        ICAPMessageElementEnum entryName = null;
-        for(Entry entry : entries) {
-            if(!entry.isProcessed()) {
-                entryName = entry.getName();
-                break;
-            }
-        }
-        return entryName;
-    }
-
-    public void setEntryAsProcessed(ICAPMessageElementEnum entryName) {
-        Entry entry = getEntryByName(entryName);
-        if(entry != null) {
-            entry.setIsProcessed();
-        }
-    }
-
     public void addEntry(ICAPMessageElementEnum name, int position) {
         Entry entry = new Entry(name,position);
         entries.add(entry);
+        Collections.sort(entries);
     }
 
-    public List<Entry> getEntries() {
-        return entries;
+    @Override
+    public Iterator<Entry> iterator() {
+        return entries.iterator();
     }
 
     /*
-    REQMOD request: 	 [req-hdr] req-body
-    REQMOD response: 	{[req-hdr] req-body} | {[res-hdr] res-body}
-    RESPMOD request:	 [req-hdr] [res-hdr] res-body
-    RESPMOD response:	 [res-hdr] res-body
-    OPTIONS response:	 opt-body
-     */
+        REQMOD request: 	 [req-hdr] req-body
+        REQMOD response: 	{[req-hdr] req-body} | {[res-hdr] res-body}
+        RESPMOD request:	 [req-hdr] [res-hdr] res-body
+        RESPMOD response:	 [res-hdr] res-body
+        OPTIONS response:	 opt-body
+    */
     private void parseHeaderValue(String headerValue) throws ICAPDecodingError {
         if(headerValue == null) {
             throw new ICAPDecodingError("No value associated with Encapsualted header");
@@ -128,7 +115,6 @@ public final class Encapsulated {
 
         private final ICAPMessageElementEnum name;
         private final Integer position;
-        private boolean processed;
 
         public Entry(ICAPMessageElementEnum name, Integer position) {
             this.name = name;
@@ -143,15 +129,8 @@ public final class Encapsulated {
             return position;
         }
 
-        public void setIsProcessed() {
-            processed = true;
-        }
-
-        public boolean isProcessed() {
-            return processed;
-        }
-
         @Override
+        @NotNull
         public int compareTo(Entry entry) {
             if(this.name.equals(ICAPMessageElementEnum.NULLBODY)) {
                 return 1;
@@ -161,7 +140,7 @@ public final class Encapsulated {
 
         @Override
         public String toString() {
-            return name + "=" + position + " : " + processed;
+            return name + "=" + position;
         }
     }
 

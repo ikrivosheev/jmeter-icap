@@ -1,5 +1,7 @@
 package org.apache.jmeter.protocol.icap.sampler.client.message;
 
+import org.apache.jmeter.protocol.icap.sampler.client.codecs.ICAPCodecUtil;
+
 import java.net.URI;
 
 public class ICAPResponse extends AbstractICAPMessage {
@@ -34,7 +36,13 @@ public class ICAPResponse extends AbstractICAPMessage {
     }
 
     public String getStartLine() {
-        return String.join(" ", (CharSequence) getVersion(), getStatus(), getReason());
+        StringBuilder builder = new StringBuilder();
+        builder.append(getVersion());
+        builder.append(ICAPCodecUtil.SPACE);
+        builder.append(getStatus());
+        builder.append(ICAPCodecUtil.SPACE);
+        builder.append(getReason());
+        return builder.toString();
     }
 
     public String toString() {

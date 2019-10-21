@@ -2,18 +2,14 @@ package org.apache.jmeter.protocol.icap.sampler.client.codecs;
 
 import org.apache.jmeter.protocol.icap.sampler.client.http.HTTPRequest;
 import org.apache.jmeter.protocol.icap.sampler.client.http.HTTPResponse;
-import org.apache.jmeter.protocol.icap.sampler.client.message.AbstractICAPMessage;
-import org.apache.jmeter.protocol.icap.sampler.client.message.Encapsulated;
-import org.apache.jmeter.protocol.icap.sampler.client.message.ICAPMessageElementEnum;
-import org.apache.jmeter.protocol.icap.sampler.client.message.ICAPRequest;
+import org.apache.jmeter.protocol.icap.sampler.client.message.*;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Collections;
+import java.io.OutputStream;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 
@@ -21,7 +17,7 @@ public class ICAPMessageEncoder {
 
     private static Logger logger = LogManager.getLogger(ICAPMessageEncoder.class);
 
-    public ByteArrayOutputStream encode(ICAPRequest message) throws Exception {
+    public void encode(OutputStream outputStream, ICAPRequest message) throws Exception {
         logger.debug("Encoding [" + message.getClass().getName() + "]");
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         encodeInitialLine(buffer, message);
@@ -41,11 +37,17 @@ public class ICAPMessageEncoder {
             index += httpResponseBuffer.size();
         }
 
-        encapsulated.addEntry(ICAPMessageElementEnum.NULLBODY, index);
+        if(message.getBodyType() != null) {
+            encapsulated.addEntry(message.getBodyType(), index);
+        } else {
+            encapsulated.addEntry(ICAPMessageElementEnum.NULLBODY, index);
+        }
+
         encodeEncapsulated(buffer, encapsulated);
         buffer.write(httpRequestBuffer.toByteArray());
         buffer.write(httpResponseBuffer.toByteArray());
-        return buffer;
+        buffer.writeTo(outputStream);
+        encodeBody(outputStream, message);
     }
 
     private int encodeInitialLine(ByteArrayOutputStream buffer, ICAPRequest request) throws Exception {
@@ -57,7 +59,31 @@ public class ICAPMessageEncoder {
         buffer.write(request.getVersion().toString().getBytes(ICAPCodecUtil.ASCII_CHARSET));
         buffer.write(ICAPCodecUtil.CRLF);
         return buffer.size() - index;
-    };
+    }
+
+    private void encodeBody(OutputStream outputStream, ICAPRequest request) throws Exception {
+        ICAPRequestBody body = request.getBody();
+        while (true) {
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            ICAPChunk chunk = body.readChunk();
+
+            if (chunk.isLast()) {
+                buffer.write((byte) '0');
+                buffer.write(ICAPCodecUtil.CRLF);
+                buffer.write(ICAPCodecUtil.CRLF);
+                buffer.writeTo(outputStream);
+                body.close();
+                return;
+            }
+            else {
+                buffer.write(Integer.toHexString(chunk.size()).getBytes(ICAPCodecUtil.ASCII_CHARSET));
+                buffer.write(ICAPCodecUtil.CRLF);
+                chunk.getContent().writeTo(buffer);
+                buffer.write(ICAPCodecUtil.CRLF);
+                buffer.writeTo(outputStream);
+            }
+        }
+    }
 
     private ByteArrayOutputStream encodeHttpRequestHeader(HTTPRequest httpRequest) throws Exception {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
@@ -109,10 +135,8 @@ public class ICAPMessageEncoder {
 
     private int encodeEncapsulated(ByteArrayOutputStream buffer, Encapsulated encapsulated) throws IOException {
         int size = buffer.size();
-        List<Encapsulated.Entry> entries = encapsulated.getEntries();
-        Collections.sort(entries);
         buffer.write("Encapsulated: ".getBytes(ICAPCodecUtil.ASCII_CHARSET));
-        Iterator<Encapsulated.Entry> entryIterator = entries.iterator();
+        Iterator<Encapsulated.Entry> entryIterator = encapsulated.iterator();
         while(entryIterator.hasNext()) {
             Encapsulated.Entry entry = entryIterator.next();
             buffer.write(entry.getName().getValue().getBytes(ICAPCodecUtil.ASCII_CHARSET));
