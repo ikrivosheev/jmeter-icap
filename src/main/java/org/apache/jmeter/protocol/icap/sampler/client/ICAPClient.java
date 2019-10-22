@@ -62,7 +62,7 @@ public class ICAPClient {
         socket.connect(request.getSocketAddress(), connTimeout);
         socket.setSoTimeout(readTimeout);
 
-        OutputStream out = socket.getOutputStream();
+        OutputStream out = new BufferedOutputStream(socket.getOutputStream());
         encoder.encode(out, request);
 
         ICAPResponse response = new ICAPResponse(request.getMethod(), request.getUri());

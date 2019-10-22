@@ -1,9 +1,7 @@
 package org.apache.jmeter.protocol.icap.sampler;
 
 import org.apache.jmeter.protocol.icap.sampler.client.ICAPClient;
-import org.apache.jmeter.protocol.icap.sampler.client.message.ICAPMethod;
-import org.apache.jmeter.protocol.icap.sampler.client.message.ICAPRequest;
-import org.apache.jmeter.protocol.icap.sampler.client.message.ICAPResponse;
+import org.apache.jmeter.protocol.icap.sampler.client.message.*;
 import org.apache.jmeter.protocol.icap.sampler.util.ICAPConstatnts;
 import org.apache.log4j.Logger;
 import org.apache.log4j.LogManager;
@@ -11,6 +9,7 @@ import org.apache.jmeter.samplers.*;
 import org.apache.jmeter.samplers.Interruptible;
 import org.apache.jmeter.config.ConfigTestElement;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
@@ -25,6 +24,7 @@ public class ICAPSampler extends AbstractSampler implements Interruptible {
     private static final String SERVICE = "service";
     private static final String CONNECT_TIMEOUT = "connect_timeout";
     private static final String READ_TIMEOUT = "read_timeout";
+    private static final String BODY_FILE = "body_file";
 
     public ICAPSampler() {
         super();
@@ -79,22 +79,36 @@ public class ICAPSampler extends AbstractSampler implements Interruptible {
         setProperty(ICAPSampler.READ_TIMEOUT, readTimeout);
     }
 
+    public String getBodyFile() {
+        return getPropertyAsString(BODY_FILE);
+    }
+
+    public void setBodyFile(String filename) {
+        setProperty(BODY_FILE, filename);
+    }
+
     public boolean applies(ConfigTestElement configElement) {
         return true;
     }
 
     public SampleResult sample(Entry e) {
+        ICAPRequest request;
+        ICAPResponse response;
+
         SampleResult result = new SampleResult();
         result.setSampleLabel(getName());
         result.sampleStart();
 
-        ICAPRequest request;
-        ICAPResponse response;
-
         try {
             ICAPClient client = new ICAPClient(getConnectTimeout(), getReadTimeout());
             request = new ICAPRequest(ICAPMethod.valueOf(getMethod()), getHost(), getPort(), getService());
+
+            ICAPRequestBody body = new ICAPRequestBodyStream(new FileInputStream(getBodyFile()));
+            request.setBody(body, ICAPMessageElementEnum.REQBODY);
+            logger.info("Create ICAP request ");
+
             response = client.request(request);
+            logger.info("Send ICAP request to " + request.getSocketAddress());
         }
         catch (URISyntaxException exc) {
             result.setSuccessful(false);
@@ -112,12 +126,14 @@ public class ICAPSampler extends AbstractSampler implements Interruptible {
             return result;
         }
 
-        result.setResponseCode(response.getStatus());
-        result.setResponseMessage(response.getReason());
         result.setRequestHeaders(request.toString());
         result.setResponseHeaders(response.toString());
-        result.sampleEnd();
+
+        result.setResponseCode(response.getStatus());
+        result.setResponseMessage(response.getReason());
         result.setSuccessful(true);
+
+        result.sampleEnd();
         return result;
     }
 

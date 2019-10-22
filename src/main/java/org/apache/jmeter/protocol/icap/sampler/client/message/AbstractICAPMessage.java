@@ -48,4 +48,11 @@ public abstract class AbstractICAPMessage extends HeadersMixin {
     public void setHttpResponse(HTTPResponse httpResponse) {
         this.httpResponse = httpResponse;
     }
+
+    public abstract String getStartLine();
+
+    public String toString() {
+        String result = super.toString();
+        return getStartLine() + "\r\n" + result;
+    }
 }

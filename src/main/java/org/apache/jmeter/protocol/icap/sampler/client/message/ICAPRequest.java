@@ -1,5 +1,6 @@
 package org.apache.jmeter.protocol.icap.sampler.client.message;
 
+import org.apache.jmeter.protocol.icap.sampler.client.codecs.ICAPCodecUtil;
 import org.apache.jmeter.protocol.icap.sampler.util.ICAPConstatnts;
 
 import java.net.URI;
@@ -36,22 +37,24 @@ public class ICAPRequest extends AbstractICAPMessage {
         if (port == -1) {
             port = ICAPConstatnts.DEFAULT_PORT;
         }
-        return new InetSocketAddress(this.uri.getHost(), port);
+        return new InetSocketAddress(uri.getHost(), port);
+    }
+
+    public void setBody(ICAPRequestBody body, ICAPMessageElementEnum bodyType) {
+        this.body = body;
+        this.bodyType = bodyType;
     }
 
     public void setHTTPRequestBody(ICAPRequestBody body) {
-        this.body = body;
-        this.bodyType = ICAPMessageElementEnum.REQBODY;
+        setBody(body, ICAPMessageElementEnum.REQBODY);
     }
 
     public void setHTTPResponseBody(ICAPRequestBody body) {
-        this.body = body;
-        this.bodyType = ICAPMessageElementEnum.RESBODY;
+        setBody(body, ICAPMessageElementEnum.RESBODY);
     }
 
     public void setICAPOPtionsBody(ICAPRequestBody body) {
-        this.body = body;
-        this.bodyType = ICAPMessageElementEnum.OPTBODY;
+        setBody(body, ICAPMessageElementEnum.OPTBODY);
     }
 
     public ICAPMessageElementEnum getBodyType() {
@@ -60,5 +63,9 @@ public class ICAPRequest extends AbstractICAPMessage {
 
     public ICAPRequestBody getBody() {
         return this.body;
+    }
+
+    public String getStartLine() {
+        return getMethod() + " " + getUri() + " " + getVersion().toString();
     }
 }
