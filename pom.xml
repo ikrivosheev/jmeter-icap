@@ -6,7 +6,7 @@
 
   <groupId>org.apache.jmeter.protocol.icap.sampler</groupId>
   <artifactId>jmeter-icap</artifactId>
-  <version>0.0.3</version>
+  <version>0.0.4</version>
 
   <name>icap</name>
 
@@ -70,5 +70,15 @@
         </plugin>
       </plugins>
     </pluginManagement>
+      <plugins>
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-compiler-plugin</artifactId>
+              <configuration>
+                  <source>8</source>
+                  <target>8</target>
+              </configuration>
+          </plugin>
+      </plugins>
   </build>
 </project>

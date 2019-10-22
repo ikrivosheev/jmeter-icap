@@ -104,7 +104,10 @@ public class ICAPSampler extends AbstractSampler implements Interruptible {
             request = new ICAPRequest(ICAPMethod.valueOf(getMethod()), getHost(), getPort(), getService());
 
             ICAPRequestBody body = new ICAPRequestBodyStream(new FileInputStream(getBodyFile()));
-            request.setBody(body, ICAPMessageElementEnum.REQBODY);
+
+            if (!getBodyFile().equals("")) {
+                request.setBody(body, ICAPMessageElementEnum.RESBODY);
+            }
             logger.info("Create ICAP request ");
 
             response = client.request(request);

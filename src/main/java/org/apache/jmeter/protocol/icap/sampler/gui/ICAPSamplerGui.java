@@ -12,6 +12,8 @@ import org.apache.jorphan.gui.JLabeledTextField;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.io.File;
 
 
 public class ICAPSamplerGui extends AbstractSamplerGui {
@@ -29,6 +31,10 @@ public class ICAPSamplerGui extends AbstractSamplerGui {
 
     private JLabeledTextField connectTimeout;
     private JLabeledTextField responseTimeout;
+
+    private JLabeledTextField body;
+    private JButton browseButton;
+    private JFileChooser bodyFileChooser;
 
     public ICAPSamplerGui() {
         init();
@@ -54,6 +60,7 @@ public class ICAPSamplerGui extends AbstractSamplerGui {
             sampler.setService(service.getText());
             sampler.setConnectTimeout(Integer.parseInt(connectTimeout.getText()));
             sampler.setReadTimeout(Integer.parseInt(responseTimeout.getText()));
+            sampler.setBodyFile(body.getText());
         }
     }
 
@@ -68,6 +75,7 @@ public class ICAPSamplerGui extends AbstractSamplerGui {
             service.setText(sampler.getService());
             connectTimeout.setText(Integer.toString(sampler.getConnectTimeout()));
             responseTimeout.setText(Integer.toString(sampler.getReadTimeout()));
+            body.setText(sampler.getBodyFile());
         }
     }
 
@@ -85,7 +93,7 @@ public class ICAPSamplerGui extends AbstractSamplerGui {
 
         JPanel mainPanel = new VerticalPanel();
         mainPanel.add(getConnectPanel());
-        mainPanel.add(getPathPanel());
+        mainPanel.add(getRequestPanel());
 
         JPanel container = new JPanel(new BorderLayout());
         container.add(mainPanel, BorderLayout.NORTH);
@@ -130,20 +138,59 @@ public class ICAPSamplerGui extends AbstractSamplerGui {
         return timeOut;
     }
 
-    private Component getPathPanel() {
+    private Component getRequestPanel() {
         method = new JLabeledChoice("Method: ", ICAPConstatnts.METHODS, true, false);
         service = new JLabeledTextField("Service: ");
+        body = new JLabeledTextField("Body: ");
+        browseButton = new JButton("Browse");
+        bodyFileChooser = new JFileChooser();
+        bodyFileChooser.addActionListener(this::attachmentFolderFileChooserActionPerformed);
 
-        JPanel pathPanel =  new HorizontalPanel();
-        pathPanel.setBorder(BorderFactory.createTitledBorder(
+        GridBagConstraints gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(2, 2, 2, 2);
+        gridBagConstraints.fill = GridBagConstraints.NONE;
+        gridBagConstraints.anchor = GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 0.5;
+
+        JPanel panelRequest = new JPanel(new GridBagLayout());
+
+        panelRequest.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createEtchedBorder(),
-                "ICAP ICAPRequest"
+                "ICAP Request"
         ));
 
-        pathPanel.add(method);
-        pathPanel.add(service);
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        panelRequest.add(method, gridBagConstraints);
 
-        return pathPanel;
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        panelRequest.add(service, gridBagConstraints);
+
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        panelRequest.add(body, gridBagConstraints);
+
+        browseButton.addActionListener(this::browseButtonActionPerformed);
+
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = GridBagConstraints.NONE;
+        panelRequest.add(browseButton, gridBagConstraints);
+
+        return panelRequest;
+    }
+
+    private void browseButtonActionPerformed(ActionEvent evt) { // NOSONAR This method is used through lambda
+        bodyFileChooser.showOpenDialog(this);
+    }
+
+    private void attachmentFolderFileChooserActionPerformed(ActionEvent evt) { // NOSONAR This method is used through lambda
+        File chosen = bodyFileChooser.getSelectedFile();
+        if (chosen == null) {
+            return;
+        }
+        body.setText(chosen.getAbsolutePath());
     }
 
     private void initFields() {
@@ -153,6 +200,7 @@ public class ICAPSamplerGui extends AbstractSamplerGui {
         responseTimeout.setText("");
         method.setText("");
         service.setText("");
+        body.setText("");
     }
 
 }
