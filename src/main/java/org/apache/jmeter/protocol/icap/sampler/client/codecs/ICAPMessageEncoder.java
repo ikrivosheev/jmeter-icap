@@ -48,6 +48,7 @@ public class ICAPMessageEncoder {
         buffer.write(httpResponseBuffer.toByteArray());
         buffer.writeTo(outputStream);
         encodeBody(outputStream, message);
+        outputStream.flush();
     }
 
     private int encodeInitialLine(ByteArrayOutputStream buffer, ICAPRequest request) throws Exception {

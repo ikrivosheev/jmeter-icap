@@ -1,5 +1,6 @@
 package org.apache.jmeter.protocol.icap.sampler.client.message;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 
@@ -22,22 +23,22 @@ public class ICAPRequestBodyStream implements ICAPRequestBody {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws IOException {
         reader.close();
     }
 
     @Override
-    public ICAPChunk readChunk() throws Exception {
+    public ICAPChunk readChunk() throws IOException {
         if (eof) {
-            return new ICAPChunk(new byte[0], true);
+            return new ICAPChunk(new byte[0], 0);
         }
         ICAPChunk chunk;
         int chunkLen = reader.read(buffer, 0, DEFAULT_CHUNK_SIZE);
         if (chunkLen == -1) {
             eof = true;
-            return new ICAPChunk(new byte[0], true);
+            return new ICAPChunk(new byte[0], 0);
         }
-        chunk = new ICAPChunk(buffer, false);
+        chunk = new ICAPChunk(buffer, chunkLen);
         return chunk;
     }
 }

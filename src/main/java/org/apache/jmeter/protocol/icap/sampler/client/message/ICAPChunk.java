@@ -8,11 +8,11 @@ public class ICAPChunk {
     private boolean last;
     private ByteArrayOutputStream buffer;
 
-    public ICAPChunk(byte[] data, boolean last) throws IOException {
-        this.last = last;
+    public ICAPChunk(byte[] data, int size) {
+        this.last = size == 0;
 
-        this.buffer = new ByteArrayOutputStream(data.length);
-        buffer.write(data);
+        this.buffer = new ByteArrayOutputStream(size);
+        buffer.write(data, 0, size);
     }
 
     public ByteArrayOutputStream getContent() {
