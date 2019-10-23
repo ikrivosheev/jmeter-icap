@@ -18,13 +18,16 @@ public class ICAPSampler extends AbstractSampler implements Interruptible {
 
     private static Logger logger = LogManager.getLogger(ICAPSampler.class);
 
-    private static final String METHOD = "method";
-    private static final String HOSTNAME = "hostname";
-    private static final String PORT = "port";
-    private static final String SERVICE = "service";
-    private static final String CONNECT_TIMEOUT = "connect_timeout";
-    private static final String READ_TIMEOUT = "read_timeout";
-    private static final String BODY_FILE = "body_file";
+    private static final String METHOD = "ICAP.method";
+    private static final String HOSTNAME = "ICAP.hostname";
+    private static final String PORT = "ICAP.port";
+    private static final String SERVICE = "ICAP.service";
+    private static final String CONNECT_TIMEOUT = "ICAP.connect_timeout";
+    private static final String READ_TIMEOUT = "ICAP.read_timeout";
+    private static final String BODY_FILE = "ICAP.body_file";
+
+    private static String DEFAULT_CONNECT_TIMEOUT = "60";
+    private static String DEFAULT_READ_TIMEOUT = "60";
 
     public ICAPSampler() {
         super();
@@ -47,11 +50,11 @@ public class ICAPSampler extends AbstractSampler implements Interruptible {
         setProperty(ICAPSampler.HOSTNAME, host);
     }
 
-    public int getPort() {
-        return getPropertyAsInt(ICAPSampler.PORT, ICAPConstatnts.DEFAULT_PORT);
+    public String getPort() {
+        return getPropertyAsString(ICAPSampler.PORT, String.valueOf(ICAPConstatnts.DEFAULT_PORT));
     }
 
-    public void setPort(int port) {
+    public void setPort(String port) {
         setProperty(ICAPSampler.PORT, port);
     }
 
@@ -63,20 +66,20 @@ public class ICAPSampler extends AbstractSampler implements Interruptible {
         setProperty(ICAPSampler.SERVICE, service);
     }
 
-    public int getConnectTimeout() {
-        return getPropertyAsInt(ICAPSampler.CONNECT_TIMEOUT, 60);
+    public String getConnectTimeout() {
+        return getPropertyAsString(ICAPSampler.CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
     }
 
-    public void setConnectTimeout(int connectTimeout) {
-        setProperty(ICAPSampler.CONNECT_TIMEOUT, connectTimeout);
+    public void setConnectTimeout(String connectTimeout) {
+        setProperty(ICAPSampler.CONNECT_TIMEOUT, connectTimeout, DEFAULT_CONNECT_TIMEOUT);
     }
 
-    public int getReadTimeout() {
-        return getPropertyAsInt(ICAPSampler.READ_TIMEOUT, 60);
+    public String getReadTimeout() {
+        return getPropertyAsString(ICAPSampler.READ_TIMEOUT, DEFAULT_READ_TIMEOUT);
     }
 
-    public void setReadTimeout(int readTimeout) {
-        setProperty(ICAPSampler.READ_TIMEOUT, readTimeout);
+    public void setReadTimeout(String readTimeout) {
+        setProperty(ICAPSampler.READ_TIMEOUT, readTimeout, DEFAULT_READ_TIMEOUT);
     }
 
     public String getBodyFile() {
@@ -100,8 +103,9 @@ public class ICAPSampler extends AbstractSampler implements Interruptible {
         result.sampleStart();
 
         try {
-            ICAPClient client = new ICAPClient(getConnectTimeout(), getReadTimeout());
-            request = new ICAPRequest(ICAPMethod.valueOf(getMethod()), getHost(), getPort(), getService());
+
+            ICAPClient client = new ICAPClient(getPropertyAsInt(CONNECT_TIMEOUT), getPropertyAsInt(READ_TIMEOUT));
+            request = new ICAPRequest(ICAPMethod.valueOf(getMethod()), getHost(), getPropertyAsInt(PORT), getService());
 
             ICAPRequestBody body = new ICAPRequestBodyStream(new FileInputStream(getBodyFile()));
 

@@ -56,10 +56,10 @@ public class ICAPSamplerGui extends AbstractSamplerGui {
             ICAPSampler sampler = (ICAPSampler) el;
             sampler.setMethod(method.getText());
             sampler.setHost(domain.getText());
-            sampler.setPort(Integer.parseInt(port.getText()));
+            sampler.setPort(port.getText());
             sampler.setService(service.getText());
-            sampler.setConnectTimeout(Integer.parseInt(connectTimeout.getText()));
-            sampler.setReadTimeout(Integer.parseInt(responseTimeout.getText()));
+            sampler.setConnectTimeout(connectTimeout.getText());
+            sampler.setReadTimeout(responseTimeout.getText());
             sampler.setBodyFile(body.getText());
         }
     }
@@ -71,10 +71,10 @@ public class ICAPSamplerGui extends AbstractSamplerGui {
         if (el instanceof ICAPSampler) {
             ICAPSampler sampler = (ICAPSampler) el;
             domain.setText(sampler.getHost());
-            port.setText(Integer.toString(sampler.getPort()));
+            port.setText(sampler.getPort());
             service.setText(sampler.getService());
-            connectTimeout.setText(Integer.toString(sampler.getConnectTimeout()));
-            responseTimeout.setText(Integer.toString(sampler.getReadTimeout()));
+            connectTimeout.setText(sampler.getConnectTimeout());
+            responseTimeout.setText(sampler.getReadTimeout());
             body.setText(sampler.getBodyFile());
         }
     }
